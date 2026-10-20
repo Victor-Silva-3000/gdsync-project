@@ -1,0 +1,21 @@
+[project]
+name = "gdsync"
+version = "1.0.0"
+description = "Sync a local file into any Google Drive folder"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-api-python-client>=2.149.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.1",
+]
+
+[project.scripts]
+gdsync = "gdsync.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["gdsync*"]
