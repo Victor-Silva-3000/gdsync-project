@@ -1,25 +1,69 @@
 # gdsync
 
+**English** | [Português (Brasil)](README.pt-BR.md)
+
 Upload a local file into any Google Drive folder. If that folder already has a binary file with the same name, gdsync updates it. If the MD5 matches, it skips the upload.
 
 Paths such as `Work/2026` are resolved inside My Drive. A folder id or a `drive.google.com/drive/folders/...` link also works for shared drives. Saved aliases make the common folders one word.
 
 ## Install
 
-Arch and other PEP 668 systems reject `python -m pip install` outside a virtualenv. Create one in this directory:
+Python 3.10 or newer. Install into a virtualenv in this directory. Current Debian, Ubuntu, Fedora, Arch, and Homebrew Python refuse `pip install` outside one.
+
+The launcher stores an absolute path to that virtualenv. If you move the project, create the virtualenv again and reinstall, then refresh the link below.
+
+### Linux
+
+Debian and Ubuntu ship the virtualenv module separately. Fedora and Arch include it with Python.
+
+```bash
+# Debian, Ubuntu
+sudo apt install python3 python3-venv
+
+# Fedora
+sudo dnf install python3
+
+# Arch
+sudo pacman -S python
+```
 
 ```bash
 cd gdsync
-python -m venv .venv
+python3 -m venv .venv
 .venv/bin/pip install -e .
-```
-
-Run it as `.venv/bin/gdsync`. To call `gdsync` from anywhere, link it onto your user path:
-
-```bash
 mkdir -p ~/.local/bin
 ln -sf "$PWD/.venv/bin/gdsync" ~/.local/bin/gdsync
 ```
+
+Open a new terminal and run `gdsync`. If the command is missing, `~/.local/bin` is not on `PATH`. Add this to `~/.bashrc` or `~/.zshrc`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### macOS
+
+Install Python 3.10+ from [python.org](https://www.python.org/downloads/macos/) or with `brew install python`. Then use the same virtualenv, `pip`, and `ln` commands as on Linux.
+
+macOS does not put `~/.local/bin` on `PATH`. Add the `export` line above to `~/.zshrc` and open a new terminal.
+
+### Windows
+
+Install Python 3.10+ from [python.org](https://www.python.org/downloads/windows/) and leave **Add python.exe to PATH** enabled. In PowerShell, from this directory:
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\pip install -e .
+$dir = Join-Path $env:USERPROFILE ".local\bin"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+New-Item -ItemType SymbolicLink -Force -Path (Join-Path $dir "gdsync.exe") -Target "$PWD\.venv\Scripts\gdsync.exe"
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if ($userPath -notlike "*$dir*") {
+    [Environment]::SetEnvironmentVariable("Path", "$dir;$userPath", "User")
+}
+```
+
+`New-Item -ItemType SymbolicLink` needs Administrator or Developer Mode. Open a new terminal and run `gdsync`. If `py` is not found, use `python -m venv .venv` instead.
 
 ## Sign in once
 
@@ -32,7 +76,7 @@ ln -sf "$PWD/.venv/bin/gdsync" ~/.local/bin/gdsync
 gdsync auth --credentials ~/Downloads/client_secret.json
 ```
 
-Examples below use `gdsync`. If you skipped the link, prefix `.venv/bin/`.
+Examples below use `gdsync`. Without the link, prefix `.venv/bin/` on Linux and macOS, or `.\.venv\Scripts\` on Windows.
 
 The client file and refresh token are stored in `~/.config/gdsync/` (or `$XDG_CONFIG_HOME/gdsync`). The token is readable only by your user.
 
